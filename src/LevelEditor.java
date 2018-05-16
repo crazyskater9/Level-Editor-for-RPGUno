@@ -7,10 +7,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.Iterator;
 
 public class LevelEditor implements ActionListener {
     private JFrame frame;
-    private JPanel objectSettings, preview;
+    private JPanel objectSettings;
+    private PreviewPanel preview;
     private JMenuBar menuBar;
     private JLabel label;
     private JFileChooser fileChooser;
@@ -60,7 +62,7 @@ public class LevelEditor implements ActionListener {
         label = new JLabel("No File selected!");
         objectSettings.add(label);
 
-        preview = new JPanel(new FlowLayout(FlowLayout.CENTER,0,0));
+        preview = new PreviewPanel(new FlowLayout(FlowLayout.CENTER,0,0));
         preview.setBackground(Color.BLACK);
         preview.setPreferredSize(new Dimension(600, 580));
     }
@@ -104,6 +106,9 @@ public class LevelEditor implements ActionListener {
                 landscape = new Landscape(fileChooser.getSelectedFile().getAbsolutePath());
 //                System.out.println(fileChooser.getSelectedFile().getAbsolutePath());
                 label.setText(fileChooser.getSelectedFile().getName());
+                preview.setLocalLandscape(landscape);
+
+                preview.repaint();
             }
             catch (Exception e) {
                 System.out.println(e);
