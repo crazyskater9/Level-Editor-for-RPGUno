@@ -13,6 +13,7 @@ public class LevelEditor implements ActionListener {
     private JFrame frame;
     private JPanel objectSettings;
     private PreviewPanel preview;
+    private JScrollPane scrollPane;
     private JMenuBar menuBar;
     private JLabel label;
     private JFileChooser fileChooser;
@@ -57,6 +58,7 @@ public class LevelEditor implements ActionListener {
 
     void initPanels(){
         objectSettings = new JPanel(new FlowLayout(FlowLayout.CENTER,0,0));
+        objectSettings.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         objectSettings.setBackground(Color.GRAY);
         objectSettings.setPreferredSize(new Dimension(200, 580));
         label = new JLabel("No File selected!");
@@ -65,6 +67,9 @@ public class LevelEditor implements ActionListener {
         preview = new PreviewPanel(new FlowLayout(FlowLayout.CENTER,0,0));
         preview.setBackground(Color.BLACK);
         preview.setPreferredSize(new Dimension(600, 580));
+        scrollPane = new JScrollPane(preview);
+        scrollPane.setPreferredSize(new Dimension(600,580));
+        scrollPane.getVerticalScrollBar().setUnitIncrement(10);
     }
 
     void initFrame(){
@@ -72,7 +77,8 @@ public class LevelEditor implements ActionListener {
 
         frame.setJMenuBar(menuBar);
         frame.add(objectSettings, BorderLayout.WEST);
-        frame.add(preview, BorderLayout.EAST);
+        frame.add(scrollPane, BorderLayout.EAST);
+        frame.addKeyListener(new previewKeyListener(scrollPane));
 
         frame.setResizable(false);
         frame.pack();
@@ -107,7 +113,7 @@ public class LevelEditor implements ActionListener {
 //                System.out.println(fileChooser.getSelectedFile().getAbsolutePath());
                 label.setText(fileChooser.getSelectedFile().getName());
                 preview.setLocalLandscape(landscape);
-
+                preview.setPreferredSize(new Dimension(Landscape.WIDTH, Landscape.HEIGHT));
                 preview.repaint();
             }
             catch (Exception e) {
