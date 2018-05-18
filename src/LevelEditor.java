@@ -7,15 +7,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.Iterator;
 
 public class LevelEditor implements ActionListener {
     private JFrame frame;
-    private JPanel objectSettings;
+    private JPanel objectSettingsPanel, infoPanel, editPanel;
+    private JList<Drawable> objectList;
+    private DefaultListModel<Drawable> listModel;
     private PreviewPanel preview;
-    private JScrollPane scrollPane;
+    private JScrollPane previewScrollPane, objectListScrollPane;
     private JMenuBar menuBar;
-    private JLabel label;
+    private JLabel fileLabel;
     private JFileChooser fileChooser;
     private Landscape landscape;
 
@@ -29,7 +30,7 @@ public class LevelEditor implements ActionListener {
         initFrame();
     }
 
-    void initMenu() {
+    private void initMenu() {
 
         menuBar = new JMenuBar();
 
@@ -56,29 +57,61 @@ public class LevelEditor implements ActionListener {
         menu.add(menuItem);
     }
 
-    void initPanels(){
-        objectSettings = new JPanel(new FlowLayout(FlowLayout.CENTER,0,0));
-        objectSettings.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        objectSettings.setBackground(Color.GRAY);
-        objectSettings.setPreferredSize(new Dimension(200, 580));
-        label = new JLabel("No File selected!");
-        objectSettings.add(label);
+    private void initPanels(){
+        infoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,0,0));
+        infoPanel.setBackground(Color.WHITE);
+        infoPanel.setPreferredSize(new Dimension(200, 50));
+        fileLabel = new JLabel("No File selected!");
+        infoPanel.add(fileLabel);
+        JLabel mouseLabel = new JLabel("Mouse-Coords: X =  | Y =  ");
+        infoPanel.add(mouseLabel);
+
+        listModel = new DefaultListModel<>();
+        objectList = new JList<>(listModel);
+        objectList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        objectList.setLayoutOrientation(JList.VERTICAL);
+        objectList.setDragEnabled(false);
+        objectList.addListSelectionListener(e -> {
+            if(!e.getValueIsAdjusting()){
+//                    System.out.println(objectList.getSelectedValue());
+                preview.highlightObject(objectList.getSelectedValue());
+                setObjectSettingsPanel(objectList.getSelectedValue());
+            }
+        });
+        objectListScrollPane = new JScrollPane(objectList);
+        objectListScrollPane.setPreferredSize(new Dimension(200,200));
+
+        objectSettingsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,0,0));
+        objectSettingsPanel.setBackground(Color.WHITE);
+        objectSettingsPanel.setPreferredSize(new Dimension(200, 330));
+        JLabel label = new JLabel("Object-Settings: ");
+        objectSettingsPanel.add(label);
+
+        editPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,0,0));
+        editPanel.setPreferredSize(new Dimension(200,580));
+        editPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        editPanel.setBackground(Color.WHITE);
+        editPanel.add(infoPanel);
+        editPanel.add(objectListScrollPane);
+        editPanel.add(objectSettingsPanel);
 
         preview = new PreviewPanel(new FlowLayout(FlowLayout.CENTER,0,0));
         preview.setBackground(Color.BLACK);
         preview.setPreferredSize(new Dimension(600, 580));
-        scrollPane = new JScrollPane(preview);
-        scrollPane.setPreferredSize(new Dimension(600,580));
-        scrollPane.getVerticalScrollBar().setUnitIncrement(10);
+        preview.addMouseMotionListener(new previewMouseMotionListener(mouseLabel));
+        preview.addMouseListener(new previewMouseListener(preview, objectList));
+        previewScrollPane = new JScrollPane(preview);
+        previewScrollPane.setPreferredSize(new Dimension(600,580));
+        previewScrollPane.getVerticalScrollBar().setUnitIncrement(10);
     }
 
-    void initFrame(){
+    private void initFrame(){
         frame = new JFrame("Level Editor for RPGUno");
 
         frame.setJMenuBar(menuBar);
-        frame.add(objectSettings, BorderLayout.WEST);
-        frame.add(scrollPane, BorderLayout.EAST);
-        frame.addKeyListener(new previewKeyListener(scrollPane));
+        frame.add(editPanel, BorderLayout.WEST);
+        frame.add(previewScrollPane, BorderLayout.EAST);
+        frame.addKeyListener(new previewKeyListener(previewScrollPane));
 
         frame.setResizable(false);
         frame.pack();
@@ -102,19 +135,26 @@ public class LevelEditor implements ActionListener {
         }
     }
 
-    void newFile() {
+    private void newFile() {
 
     }
 
-    void loadFile() {
+    private void loadFile() {
         if(fileChooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
             try {
                 landscape = new Landscape(fileChooser.getSelectedFile().getAbsolutePath());
-//                System.out.println(fileChooser.getSelectedFile().getAbsolutePath());
-                label.setText(fileChooser.getSelectedFile().getName());
+                fileLabel.setText(fileChooser.getSelectedFile().getName());
                 preview.setLocalLandscape(landscape);
                 preview.setPreferredSize(new Dimension(Landscape.WIDTH, Landscape.HEIGHT));
                 preview.repaint();
+
+                if(!landscape.objects.isEmpty()) {
+                    listModel.removeAllElements();
+                    for(Drawable d : landscape.objects) {
+                        listModel.addElement(d);
+                    }
+                }
+
             }
             catch (Exception e) {
                 System.out.println(e);
@@ -127,7 +167,45 @@ public class LevelEditor implements ActionListener {
 
     }
 
-    void saveFile() {
+    private void saveFile() {
 
+    }
+
+    private void setObjectSettingsPanel(Drawable d) {
+        GridBagLayout layout = new GridBagLayout();
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 0.5;
+        c.weighty = 0.5;
+        c.ipadx = 40;
+
+        JLabel label = new JLabel("Object-Settings: ");
+        JTextField textField;
+        objectSettingsPanel.setLayout(layout);
+        objectSettingsPanel.removeAll();
+
+        c.gridx = 0;
+        c.gridy = 0;
+        objectSettingsPanel.add(label, c);
+
+        label = new JLabel("X: ");
+        textField = new JTextField(Float.toString(d.position.x));
+        c.gridx = 0;
+        c.gridy = 1;
+        objectSettingsPanel.add(label, c);
+        c.gridx = 1;
+        c.gridy = 1;
+        objectSettingsPanel.add(textField, c);
+
+        label = new JLabel("Y: ");
+        textField = new JTextField(Float.toString(d.position.y));
+        c.gridx = 0;
+        c.gridy = 2;
+        objectSettingsPanel.add(label, c);
+        c.gridx = 1;
+        c.gridy = 2;
+        objectSettingsPanel.add(textField, c);
+
+        editPanel.repaint();
     }
 }

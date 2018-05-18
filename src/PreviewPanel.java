@@ -6,12 +6,14 @@ import java.util.Iterator;
 
 public class PreviewPanel extends JPanel {
 
-    Landscape localLandscape;
+    public Landscape localLandscape;
+    private Drawable highlightedObject;
 
     public PreviewPanel(FlowLayout layout)
     {
         super(layout);
         localLandscape = null;
+        highlightedObject = null;
     }
 
     @Override
@@ -19,11 +21,22 @@ public class PreviewPanel extends JPanel {
         super.paint(g);
         if(localLandscape != null)
         {
-            for(Iterator<Drawable> iterator = localLandscape.objects.iterator(); iterator.hasNext();) {
-                Drawable d = iterator.next();
+            for (Drawable d : localLandscape.objects) {
                 d.paint(g);
             }
+
+            if(highlightedObject != null) {
+                g.setColor(Color.MAGENTA);
+                g.drawRect((int) highlightedObject.position.x, (int) highlightedObject.position.y, highlightedObject.width, highlightedObject.height);
+            }
         }
+    }
+
+    public void highlightObject(Drawable d) {
+        if(d != null) highlightedObject = d;
+        else highlightedObject = null;
+
+        repaint();
     }
 
     void setLocalLandscape(Landscape remoteLandscape) {
