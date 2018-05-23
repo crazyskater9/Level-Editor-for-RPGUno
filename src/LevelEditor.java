@@ -19,6 +19,8 @@ public class LevelEditor implements ActionListener {
     private JLabel fileLabel;
     private JFileChooser fileChooser;
     private Landscape landscape;
+    private JLabel[] objectListLabels;
+    private JTextField[] objectListTextFields;
 
 
     public LevelEditor() {
@@ -81,7 +83,7 @@ public class LevelEditor implements ActionListener {
         objectListScrollPane = new JScrollPane(objectList);
         objectListScrollPane.setPreferredSize(new Dimension(200,200));
 
-        objectSettingsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,0,0));
+        objectSettingsPanel = new JPanel(new SpringLayout());
         objectSettingsPanel.setBackground(Color.WHITE);
         objectSettingsPanel.setPreferredSize(new Dimension(200, 330));
         JLabel label = new JLabel("Object-Settings: ");
@@ -172,40 +174,45 @@ public class LevelEditor implements ActionListener {
     }
 
     private void setObjectSettingsPanel(Drawable d) {
-        GridBagLayout layout = new GridBagLayout();
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 0.5;
-        c.weighty = 0.5;
-        c.ipadx = 40;
-
-        JLabel label = new JLabel("Object-Settings: ");
-        JTextField textField;
-        objectSettingsPanel.setLayout(layout);
+        SpringLayout layout = (SpringLayout) objectSettingsPanel.getLayout();
         objectSettingsPanel.removeAll();
+        switch (d.getClass().getName())
+        {
+            case "Game.Player":
+                objectListLabels = new JLabel[2];
+                objectListTextFields = new JTextField[2];
+                break;
+            case "Game.Wall":
+                objectListLabels = new JLabel[2];
+                objectListTextFields = new JTextField[2];
+                break;
+            case "Game.Ground":
+                objectListLabels = new JLabel[2];
+                objectListTextFields = new JTextField[2];
+                break;
+        }
 
-        c.gridx = 0;
-        c.gridy = 0;
-        objectSettingsPanel.add(label, c);
 
-        label = new JLabel("X: ");
-        textField = new JTextField(Float.toString(d.position.x));
-        c.gridx = 0;
-        c.gridy = 1;
-        objectSettingsPanel.add(label, c);
-        c.gridx = 1;
-        c.gridy = 1;
-        objectSettingsPanel.add(textField, c);
+        objectSettingsPanel.add(new JLabel("Object-Settings: "));
 
-        label = new JLabel("Y: ");
-        textField = new JTextField(Float.toString(d.position.y));
-        c.gridx = 0;
-        c.gridy = 2;
-        objectSettingsPanel.add(label, c);
-        c.gridx = 1;
-        c.gridy = 2;
-        objectSettingsPanel.add(textField, c);
+        objectListLabels[0] = new JLabel("X: ");
+        objectListTextFields[0] = new JTextField(Float.toString(d.position.x));
+        objectSettingsPanel.add(objectListLabels[0]);
+        objectSettingsPanel.add(objectListTextFields[0]);
+        layout.putConstraint(SpringLayout.NORTH, objectListLabels[0], 40, SpringLayout.NORTH, objectSettingsPanel);
+        layout.putConstraint(SpringLayout.WEST, objectListLabels[0], 10, SpringLayout.WEST, objectSettingsPanel);
+        layout.putConstraint(SpringLayout.EAST, objectListTextFields[0], -20, SpringLayout.EAST, objectSettingsPanel);
+        layout.putConstraint(SpringLayout.NORTH, objectListTextFields[0], 0, SpringLayout.NORTH, objectListLabels[0]);
 
-        editPanel.repaint();
+        objectListLabels[1] = new JLabel("Y: ");
+        objectListTextFields[1] = new JTextField(Float.toString(d.position.y));
+        objectSettingsPanel.add(objectListLabels[1]);
+        objectSettingsPanel.add(objectListTextFields[1]);
+        layout.putConstraint(SpringLayout.NORTH, objectListLabels[1], 80, SpringLayout.NORTH, objectSettingsPanel);
+        layout.putConstraint(SpringLayout.WEST, objectListLabels[1], 10, SpringLayout.WEST, objectSettingsPanel);
+        layout.putConstraint(SpringLayout.EAST, objectListTextFields[1], -20, SpringLayout.EAST, objectSettingsPanel);
+        layout.putConstraint(SpringLayout.NORTH, objectListTextFields[1], 0, SpringLayout.NORTH, objectListLabels[1]);
+
+        objectSettingsPanel.updateUI();
     }
 }
