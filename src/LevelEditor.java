@@ -193,20 +193,32 @@ public class LevelEditor implements ActionListener {
 
         objectSettingsPanel.add(new JLabel("Object-Settings: "));
 
-        addDataRowToObjectSettings(layout, position, "X: ", Float.toString(d.position.x));
+        addDataRowToObjectSettings(layout, position, "X: ", Float.toString(d.position.x), e -> {
+            d.position.x = Float.parseFloat(e.getActionCommand());
+            preview.repaint();
+        });
         position++;
 
-        addDataRowToObjectSettings(layout, position, "Y: ", Float.toString(d.position.y));
+        addDataRowToObjectSettings(layout, position, "Y: ", Float.toString(d.position.y), e -> {
+            d.position.y = Float.parseFloat(e.getActionCommand());
+            preview.repaint();
+        });
         position++;
 
 
 
         if(d instanceof Player){
-            addDataRowToObjectSettings(layout, position, "Health: ", Integer.toString(d.health));
+            addDataRowToObjectSettings(layout, position, "Health: ", Integer.toString(d.health), e -> {
+                d.health = (int) Float.parseFloat(e.getActionCommand());
+                preview.repaint();
+            });
             position++;
         }
         else if(d instanceof Wall){
-            addDataRowToObjectSettings(layout, position, "Health: ", Integer.toString(d.health));
+            addDataRowToObjectSettings(layout, position, "Health: ", Integer.toString(d.health), e -> {
+                d.health = (int) Float.parseFloat(e.getActionCommand());
+                preview.repaint();
+            });
             position++;
         }
         else if(d instanceof Ground){
@@ -223,11 +235,12 @@ public class LevelEditor implements ActionListener {
         layout.putConstraint(SpringLayout.NORTH, objectSettingsTextFields[position], 0, SpringLayout.NORTH, objectSettingsLabels[position]);
     }
 
-    private void addDataRowToObjectSettings(SpringLayout layout, int position, String labelString, String textFieldString){
+    private void addDataRowToObjectSettings(SpringLayout layout, int position, String labelString, String textFieldString, ActionListener actionListener){
         objectSettingsLabels[position] = new JLabel(labelString);
         objectSettingsTextFields[position] = new JTextField(textFieldString);
         objectSettingsTextFields[position].setPreferredSize(new Dimension(40,20));
         objectSettingsTextFields[position].setHorizontalAlignment(JTextField.RIGHT);
+        objectSettingsTextFields[position].addActionListener(actionListener);
         objectSettingsPanel.add(objectSettingsLabels[position]);
         objectSettingsPanel.add(objectSettingsTextFields[position]);
         setLayoutConstraints(layout, position);

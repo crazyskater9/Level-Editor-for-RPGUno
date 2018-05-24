@@ -22,7 +22,13 @@ public class PreviewPanel extends JPanel {
         if(localLandscape != null)
         {
             for (Drawable d : localLandscape.objects) {
-                d.paint(g);
+                if(d instanceof Player){
+                    g.drawImage(d.gameImage.image, (int) d.position.x, (int) d.position.y, null);
+                }
+                else {
+                    d.paint(g);
+                }
+
             }
 
             if(highlightedObject != null) {
