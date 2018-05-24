@@ -7,7 +7,7 @@ import java.util.Iterator;
 public class PreviewPanel extends JPanel {
 
     public Landscape localLandscape;
-    private Drawable highlightedObject;
+    private static Drawable highlightedObject;
 
     public PreviewPanel(FlowLayout layout)
     {
@@ -47,5 +47,9 @@ public class PreviewPanel extends JPanel {
 
     void setLocalLandscape(Landscape remoteLandscape) {
         localLandscape = remoteLandscape;
+    }
+
+    static Drawable getHighlightedObject(){
+        return highlightedObject;
     }
 }

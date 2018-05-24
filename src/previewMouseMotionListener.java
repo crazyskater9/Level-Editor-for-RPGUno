@@ -1,3 +1,5 @@
+import Game.Drawable;
+
 import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -13,7 +15,12 @@ public class previewMouseMotionListener implements MouseMotionListener {
 
     @Override
     public void mouseDragged(MouseEvent e) {
-
+        Drawable d = PreviewPanel.getHighlightedObject();
+        if(d != null){
+            d.position.x = e.getX();
+            d.position.y = e.getY();
+            ((PreviewPanel) e.getSource()).getRootPane().repaint();
+        }
     }
 
     @Override
