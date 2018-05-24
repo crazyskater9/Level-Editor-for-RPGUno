@@ -19,8 +19,8 @@ public class LevelEditor implements ActionListener {
     private JLabel fileLabel;
     private JFileChooser fileChooser;
     private Landscape landscape;
-    private JLabel[] objectListLabels;
-    private JTextField[] objectListTextFields;
+    private JLabel[] objectSettingsLabels;
+    private JTextField[] objectSettingsTextFields;
 
 
     public LevelEditor() {
@@ -174,45 +174,62 @@ public class LevelEditor implements ActionListener {
     }
 
     private void setObjectSettingsPanel(Drawable d) {
+        int position = 0;
         SpringLayout layout = (SpringLayout) objectSettingsPanel.getLayout();
         objectSettingsPanel.removeAll();
-        switch (d.getClass().getName())
-        {
-            case "Game.Player":
-                objectListLabels = new JLabel[2];
-                objectListTextFields = new JTextField[2];
-                break;
-            case "Game.Wall":
-                objectListLabels = new JLabel[2];
-                objectListTextFields = new JTextField[2];
-                break;
-            case "Game.Ground":
-                objectListLabels = new JLabel[2];
-                objectListTextFields = new JTextField[2];
-                break;
+        if(d instanceof Player){
+            objectSettingsLabels = new JLabel[3];
+            objectSettingsTextFields = new JTextField[3];
+        }
+        else if(d instanceof Wall){
+            objectSettingsLabels = new JLabel[3];
+            objectSettingsTextFields = new JTextField[3];
+        }
+        else if(d instanceof Ground){
+            objectSettingsLabels = new JLabel[2];
+            objectSettingsTextFields = new JTextField[2];
         }
 
 
         objectSettingsPanel.add(new JLabel("Object-Settings: "));
 
-        objectListLabels[0] = new JLabel("X: ");
-        objectListTextFields[0] = new JTextField(Float.toString(d.position.x));
-        objectSettingsPanel.add(objectListLabels[0]);
-        objectSettingsPanel.add(objectListTextFields[0]);
-        layout.putConstraint(SpringLayout.NORTH, objectListLabels[0], 40, SpringLayout.NORTH, objectSettingsPanel);
-        layout.putConstraint(SpringLayout.WEST, objectListLabels[0], 10, SpringLayout.WEST, objectSettingsPanel);
-        layout.putConstraint(SpringLayout.EAST, objectListTextFields[0], -20, SpringLayout.EAST, objectSettingsPanel);
-        layout.putConstraint(SpringLayout.NORTH, objectListTextFields[0], 0, SpringLayout.NORTH, objectListLabels[0]);
+        addDataRowToObjectSettings(layout, position, "X: ", Float.toString(d.position.x));
+        position++;
 
-        objectListLabels[1] = new JLabel("Y: ");
-        objectListTextFields[1] = new JTextField(Float.toString(d.position.y));
-        objectSettingsPanel.add(objectListLabels[1]);
-        objectSettingsPanel.add(objectListTextFields[1]);
-        layout.putConstraint(SpringLayout.NORTH, objectListLabels[1], 80, SpringLayout.NORTH, objectSettingsPanel);
-        layout.putConstraint(SpringLayout.WEST, objectListLabels[1], 10, SpringLayout.WEST, objectSettingsPanel);
-        layout.putConstraint(SpringLayout.EAST, objectListTextFields[1], -20, SpringLayout.EAST, objectSettingsPanel);
-        layout.putConstraint(SpringLayout.NORTH, objectListTextFields[1], 0, SpringLayout.NORTH, objectListLabels[1]);
+        addDataRowToObjectSettings(layout, position, "Y: ", Float.toString(d.position.y));
+        position++;
+
+
+
+        if(d instanceof Player){
+            addDataRowToObjectSettings(layout, position, "Health: ", Integer.toString(d.health));
+            position++;
+        }
+        else if(d instanceof Wall){
+            addDataRowToObjectSettings(layout, position, "Health: ", Integer.toString(d.health));
+            position++;
+        }
+        else if(d instanceof Ground){
+
+        }
 
         objectSettingsPanel.updateUI();
+    }
+
+    private void setLayoutConstraints(SpringLayout layout, int position) {
+        layout.putConstraint(SpringLayout.NORTH, objectSettingsLabels[position], position * 30 + 40, SpringLayout.NORTH, objectSettingsPanel);
+        layout.putConstraint(SpringLayout.WEST, objectSettingsLabels[position], 10, SpringLayout.WEST, objectSettingsPanel);
+        layout.putConstraint(SpringLayout.EAST, objectSettingsTextFields[position], -20, SpringLayout.EAST, objectSettingsPanel);
+        layout.putConstraint(SpringLayout.NORTH, objectSettingsTextFields[position], 0, SpringLayout.NORTH, objectSettingsLabels[position]);
+    }
+
+    private void addDataRowToObjectSettings(SpringLayout layout, int position, String labelString, String textFieldString){
+        objectSettingsLabels[position] = new JLabel(labelString);
+        objectSettingsTextFields[position] = new JTextField(textFieldString);
+        objectSettingsTextFields[position].setPreferredSize(new Dimension(40,20));
+        objectSettingsTextFields[position].setHorizontalAlignment(JTextField.RIGHT);
+        objectSettingsPanel.add(objectSettingsLabels[position]);
+        objectSettingsPanel.add(objectSettingsTextFields[position]);
+        setLayoutConstraints(layout, position);
     }
 }
