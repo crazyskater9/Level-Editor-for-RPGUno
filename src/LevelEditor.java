@@ -1,4 +1,5 @@
 import Game.*;
+import com.sun.org.apache.xerces.internal.xs.datatypes.ObjectList;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -7,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.Iterator;
 
 public class LevelEditor implements ActionListener {
     private JFrame frame;
@@ -21,6 +23,7 @@ public class LevelEditor implements ActionListener {
     private Landscape landscape;
     private JLabel[] objectSettingsLabels;
     private JTextField[] objectSettingsTextFields;
+    private JButton addObjectButton, removeObjectButton;
 
 
     public LevelEditor() {
@@ -60,13 +63,23 @@ public class LevelEditor implements ActionListener {
     }
 
     private void initPanels(){
-        infoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,0,0));
+        infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,0,0));
         infoPanel.setBackground(Color.WHITE);
-        infoPanel.setPreferredSize(new Dimension(200, 50));
+        infoPanel.setPreferredSize(new Dimension(200, 60));
         fileLabel = new JLabel("No File selected!");
         infoPanel.add(fileLabel);
         JLabel mouseLabel = new JLabel("Mouse-Coords: X =  | Y =  ");
         infoPanel.add(mouseLabel);
+        addObjectButton = new JButton("+");
+        addObjectButton.setBackground(Color.GREEN);
+        addObjectButton.setVisible(false);
+        addObjectButton.addActionListener(this);
+        infoPanel.add(addObjectButton);
+        removeObjectButton = new JButton("x");
+        removeObjectButton.setBackground(Color.RED);
+        removeObjectButton.setVisible(false);
+        removeObjectButton.addActionListener(this);
+        infoPanel.add(removeObjectButton);
 
         listModel = new DefaultListModel<>();
         objectList = new JList<>(listModel);
@@ -78,6 +91,7 @@ public class LevelEditor implements ActionListener {
 //                    System.out.println(objectList.getSelectedValue());
                 preview.highlightObject(objectList.getSelectedValue());
                 setObjectSettingsPanel(objectList.getSelectedValue());
+                removeObjectButton.setVisible(true);
             }
         });
         objectListScrollPane = new JScrollPane(objectList);
@@ -85,7 +99,7 @@ public class LevelEditor implements ActionListener {
 
         objectSettingsPanel = new JPanel(new SpringLayout());
         objectSettingsPanel.setBackground(Color.WHITE);
-        objectSettingsPanel.setPreferredSize(new Dimension(200, 330));
+        objectSettingsPanel.setPreferredSize(new Dimension(200, 320));
         JLabel label = new JLabel("Object-Settings: ");
         objectSettingsPanel.add(label);
 
@@ -134,6 +148,12 @@ public class LevelEditor implements ActionListener {
             case "Save":
                 saveFile();
                 break;
+            case "+":
+                addObjectToLandscape();
+                break;
+            case "x":
+                removeObjectFromLandscape();
+                break;
         }
     }
 
@@ -156,7 +176,7 @@ public class LevelEditor implements ActionListener {
                         listModel.addElement(d);
                     }
                 }
-
+                addObjectButton.setVisible(true);
             }
             catch (Exception e) {
                 System.out.println(e);
@@ -173,10 +193,41 @@ public class LevelEditor implements ActionListener {
 
     }
 
+    private void removeObjectFromLandscape() {
+        Drawable selectedValue = objectList.getSelectedValue();
+        Drawable d;
+        for(Iterator<Drawable> iterator = landscape.objects.iterator(); iterator.hasNext();) {
+            d = iterator.next();
+            if(d.equals(selectedValue)){
+                listModel.removeElement(d);
+                if(listModel.isEmpty()) removeObjectButton.setVisible(false);
+                iterator.remove();
+                preview.repaint();
+                editPanel.updateUI();
+            }
+        }
+    }
+
+    private void addObjectToLandscape() {
+//        WIP
+//        JDialog dialog = new JDialog ();
+//        dialog.setTitle("Add Object");
+//        dialog.setModal(true);
+//        dialog.setAlwaysOnTop(true);
+//        dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+//        dialog.setLocationRelativeTo(null);
+//        dialog.setResizable(false);
+//        dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+//        dialog.pack();
+//        dialog.setVisible(true);
+    }
+
     private void setObjectSettingsPanel(Drawable d) {
         int position = 0;
         SpringLayout layout = (SpringLayout) objectSettingsPanel.getLayout();
         objectSettingsPanel.removeAll();
+        objectSettingsPanel.add(new JLabel("Object-Settings: "));
+
         if(d instanceof Player){
             objectSettingsLabels = new JLabel[3];
             objectSettingsTextFields = new JTextField[3];
@@ -189,9 +240,7 @@ public class LevelEditor implements ActionListener {
             objectSettingsLabels = new JLabel[2];
             objectSettingsTextFields = new JTextField[2];
         }
-
-
-        objectSettingsPanel.add(new JLabel("Object-Settings: "));
+        else return;
 
         addDataRowToObjectSettings(layout, position, "X: ", Float.toString(d.position.x), e -> {
             d.position.x = Float.parseFloat(e.getActionCommand());

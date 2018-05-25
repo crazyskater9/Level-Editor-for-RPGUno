@@ -17,8 +17,8 @@ public class previewMouseMotionListener implements MouseMotionListener {
     public void mouseDragged(MouseEvent e) {
         Drawable d = PreviewPanel.getHighlightedObject();
         if(d != null){
-            d.position.x = e.getX();
-            d.position.y = e.getY();
+            d.position.x = e.getX() - d.width/2;
+            d.position.y = e.getY() - d.height/2;
             ((PreviewPanel) e.getSource()).getRootPane().repaint();
         }
     }
